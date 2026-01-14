@@ -40,6 +40,9 @@ export const redis = {
   },
   flushdb: async () => {
     return Redis.fromEnv().flushdb();
+  },
+  ping: async () => {
+    return Redis.fromEnv().ping();
   }
 };
 
