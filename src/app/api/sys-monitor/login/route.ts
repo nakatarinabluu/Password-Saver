@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticator } from "otplib";
+import { authenticator } from "@otplib/preset-default";
 
 export async function POST(req: NextRequest) {
     try {
