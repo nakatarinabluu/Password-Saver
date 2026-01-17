@@ -44,9 +44,6 @@ export default function AdminPage() {
         setMessage("Initiating Wipe Protocol...");
 
         try {
-            // Send the same credentials or rely on cookie? 
-            // For strict state-less simplicity in this V1, let's send credentials again or rely on the cookie set by login.
-            // We will rely on the cookie set by the Login route.
             const res = await fetch("/api/sys-monitor/wipe", {
                 method: "POST",
             });
@@ -63,11 +60,32 @@ export default function AdminPage() {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await fetch("/api/sys-monitor/logout", { method: "POST" });
+        } catch (e) {
+            // Ignore network error on logout
+        }
+        setIsAuthenticated(false);
+        setPassword("");
+        setTotp("");
+        setMessage("Logged Out.");
+    };
+
     if (isAuthenticated) {
         return (
             <div className="min-h-screen bg-black text-red-500 font-mono flex flex-col items-center justify-center p-4">
                 <div className="border border-red-800 p-8 rounded-lg max-w-md w-full bg-gray-900 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
-                    <h1 className="text-3xl font-bold mb-6 text-center glitch-effect">SUPER USER ACCESS</h1>
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold glitch-effect">SUPER USER</h1>
+                        <button
+                            onClick={handleLogout}
+                            className="text-xs border border-red-700 p-2 hover:bg-red-900 transition-colors"
+                        >
+                            [ SIGN OUT ]
+                        </button>
+                    </div>
+
                     <p className="text-green-500 mb-8 text-center typewriter">Identity Verified. Command Ready.</p>
 
                     <div className="space-y-4">
@@ -93,9 +111,11 @@ export default function AdminPage() {
     return (
         <div className="min-h-screen bg-gray-950 text-gray-200 font-sans flex flex-col items-center justify-center p-4">
             <div className="bg-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-800">
-                <h1 className="text-2xl font-bold mb-6 text-center text-white">Admin Portal</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center text-white">System Monitor</h1>
 
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
+                    <input type="hidden" value="prayer" />
+
                     <div>
                         <label className="block text-sm font-medium mb-2 text-gray-400">Admin Password</label>
                         <input
@@ -105,6 +125,8 @@ export default function AdminPage() {
                             className="w-full p-3 bg-gray-950 border border-gray-700 rounded text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                             placeholder="Enter Password"
                             required
+                            autoComplete="new-password"
+                            name="admin-pwd-no-save"
                         />
                     </div>
 
@@ -118,6 +140,7 @@ export default function AdminPage() {
                             placeholder="000 000"
                             maxLength={6}
                             required
+                            autoComplete="one-time-code"
                         />
                     </div>
 
