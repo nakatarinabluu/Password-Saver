@@ -87,8 +87,9 @@ export async function GET(req: NextRequest) {
                     iv: row.iv,
                 });
             } catch (decryptionError) {
-                console.error(`[CRITICAL] Decryption Failed for ID: ${row.id}`);
-                return NextResponse.json({ error: 'Decryption Error' }, { status: 500 });
+                console.error(`[CRITICAL] Decryption Failed for ID: ${row.id}`, decryptionError);
+                // Fail-safe: Skip this item instead of crashing the whole request
+                continue;
             }
         }
 
