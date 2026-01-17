@@ -8,6 +8,7 @@ export default function AdminPage() {
     const [totp, setTotp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,11 +36,12 @@ export default function AdminPage() {
         }
     };
 
-    const handleWipe = async () => {
-        if (!confirm("⚠️ SUPER USER WARNING ⚠️\n\nThis will permanently DELETE ALL DATA in the vault.\nThere is NO undo.\n\nAre you absolutely sure?")) {
-            return;
-        }
+    const handleWipeRequest = () => {
+        setShowConfirm(true); // Open Modal
+    };
 
+    const executeWipe = async () => {
+        setShowConfirm(false); // Close Modal
         setIsLoading(true);
         setMessage("Initiating Wipe Protocol...");
 
@@ -74,8 +76,8 @@ export default function AdminPage() {
 
     if (isAuthenticated) {
         return (
-            <div className="min-h-screen bg-black text-red-500 font-mono flex flex-col items-center justify-center p-4">
-                <div className="border border-red-800 p-8 rounded-lg max-w-md w-full bg-gray-900 shadow-[0_0_20px_rgba(255,0,0,0.5)]">
+            <div className="min-h-screen bg-black text-red-500 font-mono flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                <div className="border border-red-800 p-8 rounded-lg max-w-md w-full bg-gray-900 shadow-[0_0_20px_rgba(255,0,0,0.5)] z-10">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold glitch-effect">SUPER USER</h1>
                         <button
@@ -90,7 +92,7 @@ export default function AdminPage() {
 
                     <div className="space-y-4">
                         <button
-                            onClick={handleWipe}
+                            onClick={handleWipeRequest}
                             disabled={isLoading}
                             className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-6 rounded border-2 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.7)] transition-all duration-200 uppercase tracking-widest"
                         >
@@ -104,6 +106,37 @@ export default function AdminPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Custom Confirmation Modal */}
+                {showConfirm && (
+                    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                        <div className="border-2 border-red-600 bg-gray-950 p-8 rounded-xl shadow-[0_0_50px_rgba(255,0,0,0.5)] max-w-sm w-full text-center">
+                            <h2 className="text-3xl font-extrabold text-red-500 mb-4 tracking-tighter">⛔ WARNING ⛔</h2>
+                            <p className="text-gray-300 mb-6 text-sm leading-relaxed">
+                                This action is <span className="text-red-500 font-bold">IRREVERSIBLE</span>.
+                                <br /><br />
+                                All secrets, keys, and backups will be permanently destroyed.
+                                <br /><br />
+                                Are you absolutely sure?
+                            </p>
+
+                            <div className="flex space-x-4">
+                                <button
+                                    onClick={() => setShowConfirm(false)}
+                                    className="flex-1 py-3 border border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white rounded transition-colors uppercase font-bold text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={executeWipe}
+                                    className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded shadow-lg transition-transform hover:scale-105 uppercase font-bold text-sm"
+                                >
+                                    YES, WIPE IT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
@@ -114,7 +147,7 @@ export default function AdminPage() {
                 <h1 className="text-2xl font-bold mb-6 text-center text-white">System Monitor</h1>
 
                 <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
-                    <input type="hidden" value="prayer" />
+                    <input type="hidden" value="check" />
 
                     <div>
                         <label className="block text-sm font-medium mb-2 text-gray-400">Admin Password</label>
