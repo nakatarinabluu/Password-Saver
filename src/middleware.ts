@@ -138,7 +138,7 @@ export async function middleware(req: NextRequest) {
             });
         }
 
-        // 6. Timestamp Replay
+        // 6. Timestamp Replay (Relaxed for Free Tier / Bad Signal)
         const timestampStr = req.headers.get('x-timestamp');
         if (!timestampStr) {
             await recordFailure(ip);
@@ -146,9 +146,10 @@ export async function middleware(req: NextRequest) {
         }
         const timestamp = parseInt(timestampStr, 10);
         const now = Date.now();
-        if (isNaN(timestamp) || Math.abs(now - timestamp) > 10000) {
+        // Allow 60 seconds drift (30s past + 30s future) for slow networks
+        if (isNaN(timestamp) || Math.abs(now - timestamp) > 60000) {
             await recordFailure(ip);
-            return new NextResponse(null, { status: 401 });
+            return new NextResponse(null, { status: 401, statusText: 'Timestamp Expired' });
         }
 
         // 7. Device-Bound HMAC Signature
@@ -211,8 +212,8 @@ export async function middleware(req: NextRequest) {
             await recordFailure(ip);
             return new NextResponse(null, { status: 401, statusText: 'Replay Detected' });
         }
-        // Cache signature for 20 seconds (covering the 10s timestamp window)
-        await redis.set(replayKey, '1', { ex: 20 });
+        // Cache signature for 90 seconds (covering the 60s timestamp window)
+        await redis.set(replayKey, '1', { ex: 90 });
 
         const response = NextResponse.next();
         response.headers.set('Server', 'Apache/2.2.22 (Unix) PHP/5.4.3');
