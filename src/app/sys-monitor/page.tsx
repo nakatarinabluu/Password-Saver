@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AdminPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -76,6 +76,17 @@ export default function AdminPage() {
 
     // STEALTH MODE: Default is Hidden (looks like 404)
     const [isHidden, setIsHidden] = useState(true);
+
+    // Keyboard Listener for Stealth Toggle (Ctrl + Shift + L)
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                setIsHidden(prev => !prev);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     if (isAuthenticated) {
         return (
@@ -155,18 +166,15 @@ export default function AdminPage() {
     // STEALTH UI: Looks like Apache 404 until triggered
     if (isHidden) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white text-black font-sans cursor-default">
+            <div className="min-h-screen flex items-center justify-center bg-white text-black font-sans cursor-default select-none">
                 <div className="text-center">
                     <h1 className="text-9xl font-extrabold text-gray-200">404</h1>
                     <p className="text-2xl md:text-3xl font-light mt-4 text-gray-800">Page Not Found</p>
                     <p className="mt-4 mb-8 text-gray-500">The requested URL /sys-monitor was not found on this server.</p>
 
-                    {/* THE TRIGGER: Clicking the word "at" reveals the login */}
+                    {/* NO POPUP - PURE TEXT - INVISIBLE TRIGGER */}
                     <div className="text-xs text-gray-300 mt-12 font-mono">
-                        Apache/2.4.41 (Ubuntu) Server <span
-                            onClick={() => setIsHidden(false)}
-                            className="transition-colors"
-                        >at</span> localhost Port 80
+                        Apache/2.4.41 (Ubuntu) Server at localhost Port 80
                     </div>
                 </div>
             </div>
