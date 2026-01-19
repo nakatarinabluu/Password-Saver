@@ -165,7 +165,7 @@ export default function AdminPage() {
                     <div className="text-xs text-gray-300 mt-12 font-mono">
                         Apache/2.4.41 (Ubuntu) Server <span
                             onClick={() => setIsHidden(false)}
-                            className="hover:text-gray-400 transition-colors cursor-pointer"
+                            className="transition-colors"
                         >at</span> localhost Port 80
                     </div>
                 </div>
