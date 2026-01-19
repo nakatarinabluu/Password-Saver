@@ -1,13 +1,12 @@
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white font-mono">
+    <div className="min-h-screen flex items-center justify-center bg-white text-black font-sans">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 text-green-500">SYSTEM ONLINE</h1>
-        <p className="text-gray-500">ZeroKeep Enterprise Server</p>
-        <div className="mt-8 flex justify-center space-x-4 text-xs tracking-widest text-gray-600">
-          <span>STATUS: GREEN</span>
-          <span>REGION: ID</span>
-          <span>ENCRYPTION: AES-256</span>
+        <h1 className="text-9xl font-extrabold text-gray-200">404</h1>
+        <p className="text-2xl md:text-3xl font-light mt-4 text-gray-800">Page Not Found</p>
+        <p className="mt-4 mb-8 text-gray-500">The requested URL / was not found on this server.</p>
+        <div className="text-xs text-gray-300 mt-12 font-mono">
+          Apache/2.4.41 (Ubuntu) Server at localhost Port 80
         </div>
       </div>
     </div>
