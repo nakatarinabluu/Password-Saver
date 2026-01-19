@@ -10,18 +10,17 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // ... (Auth Logic remains identical) ...
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
-
     try {
       const res = await fetch("/api/sys-monitor/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password, totp }),
       });
-
       if (res.ok) {
         setIsAuthenticated(true);
         setMessage("Access Granted.");
@@ -36,25 +35,16 @@ export default function Home() {
     }
   };
 
-  const handleWipeRequest = () => {
-    setShowConfirm(true);
-  };
+  const handleWipeRequest = () => setShowConfirm(true);
 
   const executeWipe = async () => {
     setShowConfirm(false);
     setIsLoading(true);
     setMessage("Initiating Wipe Protocol...");
-
     try {
-      const res = await fetch("/api/sys-monitor/wipe", {
-        method: "POST",
-      });
-
-      if (res.ok) {
-        setMessage("✅ SYSTEM PURGED. Vault is empty.");
-      } else {
-        setMessage("❌ WIPE FAILED. Check logs.");
-      }
+      const res = await fetch("/api/sys-monitor/wipe", { method: "POST" });
+      if (res.ok) setMessage("✅ SYSTEM PURGED. Vault is empty.");
+      else setMessage("❌ WIPE FAILED. Check logs.");
     } catch (err) {
       setMessage("❌ Network Error during Wipe.");
     } finally {
@@ -63,26 +53,19 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    try {
-      await fetch("/api/sys-monitor/logout", { method: "POST" });
-    } catch (e) {
-      // Ignore network error on logout
-    }
+    try { await fetch("/api/sys-monitor/logout", { method: "POST" }); } catch (e) { }
     setIsAuthenticated(false);
     setPassword("");
     setTotp("");
     setMessage("Logged Out.");
   };
 
-  // STEALTH MODE: Default is Hidden (looks like 404/Construction)
+  // STEALTH MODE
   const [isHidden, setIsHidden] = useState(true);
 
-  // Keyboard Listener for Stealth Toggle (Ctrl + Shift + L)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'L') {
-        setIsHidden(prev => !prev);
-      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'L') setIsHidden(prev => !prev);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -91,56 +74,24 @@ export default function Home() {
   if (isAuthenticated) {
     return (
       <div className="min-h-screen bg-black text-red-500 font-mono flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        {/* ... Authenticated Logic Same as Before ... */}
+        {/* Logged In View (Preserved) */}
         <div className="border border-red-800 p-8 rounded-lg max-w-md w-full bg-gray-900 shadow-[0_0_20px_rgba(255,0,0,0.5)] z-10">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold glitch-effect">SUPER USER</h1>
-            <button
-              onClick={handleLogout}
-              className="text-xs border border-red-700 p-2 hover:bg-red-900 transition-colors"
-            >
-              [ SIGN OUT ]
-            </button>
+            <button onClick={handleLogout} className="text-xs border border-red-700 p-2 hover:bg-red-900 transition-colors">[ SIGN OUT ]</button>
           </div>
-
           <p className="text-green-500 mb-8 text-center typewriter">Identity Verified. Command Ready.</p>
-
           <div className="space-y-4">
-            <button
-              onClick={handleWipeRequest}
-              disabled={isLoading}
-              className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-6 rounded border-2 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.7)] transition-all duration-200 uppercase tracking-widest"
-            >
-              {isLoading ? "EXECUTING..." : "☢️ WIPE ALL DATA"}
-            </button>
-
-            <a
-              href="/vault-ops/logs"
-              target="_blank"
-              className="block w-full text-center bg-blue-900/30 hover:bg-blue-800/50 text-blue-400 font-bold py-3 px-6 rounded border border-blue-800 transition-all duration-200 uppercase tracking-widest mt-4"
-            >
-              📊 View Crash Logs
-            </a>
+            <button onClick={handleWipeRequest} disabled={isLoading} className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-6 rounded border-2 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.7)] transition-all duration-200 uppercase tracking-widest">{isLoading ? "EXECUTING..." : "☢️ WIPE ALL DATA"}</button>
+            <a href="/vault-ops/logs" target="_blank" className="block w-full text-center bg-blue-900/30 hover:bg-blue-800/50 text-blue-400 font-bold py-3 px-6 rounded border border-blue-800 transition-all duration-200 uppercase tracking-widest mt-4">📊 View Crash Logs</a>
           </div>
-
-          {message && (
-            <div className="mt-6 p-4 border border-gray-700 bg-black text-center text-sm">
-              {message}
-            </div>
-          )}
+          {message && <div className="mt-6 p-4 border border-gray-700 bg-black text-center text-sm">{message}</div>}
         </div>
-        {/* Modal Logic Omitted for Brevity (Same as before) */}
         {showConfirm && (
           <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="border-2 border-red-600 bg-gray-950 p-8 rounded-xl shadow-[0_0_50px_rgba(255,0,0,0.5)] max-w-sm w-full text-center">
               <h2 className="text-3xl font-extrabold text-red-500 mb-4 tracking-tighter">⛔ WARNING ⛔</h2>
-              <p className="text-gray-300 mb-6 text-sm leading-relaxed">
-                This action is <span className="text-red-500 font-bold">IRREVERSIBLE</span>.
-                <br /><br />
-                All secrets, keys, and backups will be permanently destroyed.
-                <br /><br />
-                Are you absolutely sure?
-              </p>
+              <p className="text-gray-300 mb-6 text-sm leading-relaxed">This action is <span className="text-red-500 font-bold">IRREVERSIBLE</span>.<br /><br />All secrets, keys, and backups will be permanently destroyed.<br /><br />Are you absolutely sure?</p>
               <div className="flex space-x-4">
                 <button onClick={() => setShowConfirm(false)} className="flex-1 py-3 border border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-white rounded transition-colors uppercase font-bold text-sm">Cancel</button>
                 <button onClick={executeWipe} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded shadow-lg transition-transform hover:scale-105 uppercase font-bold text-sm">YES, WIPE IT</button>
@@ -152,41 +103,41 @@ export default function Home() {
     );
   }
 
-  // STEALTH UI: "Under Construction" with Simple Tailwind Animations
+  // STEALTH UI: MIDNIGHT BLUE THEME
   if (isHidden) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-800 font-sans cursor-default select-none p-4">
+      // Main Background: App Theme #04326E
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#04326E] text-white font-sans cursor-default select-none p-4">
 
         <div className="text-center max-w-lg">
-          {/* Primary Animation: SPINNING Gear */}
-          {/* Using standard 'animate-spin' which is defined in Tailwind default theme */}
-          <div className="text-8xl mb-6 inline-block opacity-40 animate-spin" style={{ animationDuration: '3s' }}>
+          {/* Animated Gear: White with low opacity */}
+          <div className="text-8xl mb-6 inline-block opacity-20 animate-spin" style={{ animationDuration: '3s' }}>
             ⚙️
           </div>
 
-          <h1 className="text-4xl font-light mb-4 text-gray-900 tracking-tight">
-            Under Maintenance
+          <h1 className="text-4xl font-light mb-4 text-blue-100 tracking-tight">
+            System Maintenance
           </h1>
 
-          {/* Secondary Animation: PULSING Bar */}
-          <div className="h-2 w-48 bg-gray-300 rounded-full mx-auto mb-8 overflow-hidden">
-            <div className="h-full bg-blue-500 w-1/2 rounded-full animate-pulse"></div>
+          {/* Pulsing Bar: Lighter Blue */}
+          <div className="h-2 w-48 bg-blue-900 rounded-full mx-auto mb-8 overflow-hidden">
+            <div className="h-full bg-blue-400 w-1/2 rounded-full animate-pulse"></div>
           </div>
 
-          <p className="text-gray-500 mb-12 leading-relaxed">
-            Our site is currently undergoing scheduled upgrades.
+          <p className="text-blue-200 mb-12 leading-relaxed">
+            The ZeroKeep secure environment is updating.
             <br />
-            We should be back shortly. Thank you for your patience.
+            Access is temporarily restricted.
           </p>
 
           <div className="flex justify-center items-center space-x-4">
-            {/* Bouncing Dots */}
-            <div className="h-3 w-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-            <div className="h-3 w-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="h-3 w-3 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            {/* Dots: Light Blue */}
+            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
           </div>
 
-          <div className="text-xs text-gray-400 mt-20 font-mono uppercase tracking-widest">
+          <div className="text-xs text-blue-400/50 mt-20 font-mono uppercase tracking-widest">
             &copy; 2026 ZeroKeep Inc.
           </div>
         </div>
@@ -195,25 +146,24 @@ export default function Home() {
   }
 
   // REAL LOGIN UI (Revealed)
-  // ... Same as before ...
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200 font-sans flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-900 p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-800 animate-in fade-in zoom-in duration-300">
+    <div className="min-h-screen bg-[#021a3a] text-gray-200 font-sans flex flex-col items-center justify-center p-4">
+      <div className="bg-[#04326E] p-8 rounded-xl shadow-2xl w-full max-w-sm border border-blue-800 animate-in fade-in zoom-in duration-300">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-white">System Monitor</h1>
-          <button onClick={() => setIsHidden(true)} className="text-gray-500 hover:text-white">✕</button>
+          <button onClick={() => setIsHidden(true)} className="text-blue-300 hover:text-white">✕</button>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
           <input type="hidden" value="check" />
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-400">Admin Password</label>
+            <label className="block text-sm font-medium mb-2 text-blue-200">Admin Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-gray-950 border border-gray-700 rounded text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+              className="w-full p-3 bg-[#021a3a] border border-blue-700 rounded text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition"
               placeholder="Enter Password"
               required
               autoComplete="new-password"
@@ -223,12 +173,12 @@ export default function Home() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-400">2FA Code (Authenticator)</label>
+            <label className="block text-sm font-medium mb-2 text-blue-200">2FA Code</label>
             <input
               type="text"
               value={totp}
               onChange={(e) => setTotp(e.target.value)}
-              className="w-full p-3 bg-gray-950 border border-gray-700 rounded text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition font-mono tracking-widest text-center"
+              className="w-full p-3 bg-[#021a3a] border border-blue-700 rounded text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition font-mono tracking-widest text-center"
               placeholder="000 000"
               maxLength={6}
               required
@@ -239,14 +189,14 @@ export default function Home() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded transition-colors shadow-lg"
           >
             {isLoading ? "Verifying..." : "Authenticate"}
           </button>
         </form>
 
         {message && (
-          <p className="mt-4 text-center text-red-400 text-sm">{message}</p>
+          <p className="mt-4 text-center text-red-300 text-sm">{message}</p>
         )}
       </div>
     </div>
