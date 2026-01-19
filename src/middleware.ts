@@ -4,7 +4,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
 export const config = {
-    matcher: '/api/:path*',
+    matcher: ['/api/:path*', '/vault-ops/:path*'],
 };
 
 const redis = Redis.fromEnv();
@@ -65,7 +65,6 @@ export async function middleware(req: NextRequest) {
         const honeypots = ['/wp-admin', '/admin', '/login', '/phpmyadmin', '/.env', '/config.php'];
         // Fix: Allow /sys-monitor AND /api/sys-monitor (Login flows)
         if (honeypots.some(h => path.includes(h)) &&
-            !path.startsWith('/sys-monitor') &&
             !path.startsWith('/api/sys-monitor')) {
             await redis.set(`ban:${ip}`, 'true', { ex: 86400 }); // Ban for 24 hours
             return new NextResponse(null, { status: 404 });
