@@ -84,8 +84,11 @@ export async function middleware(req: NextRequest) {
             // STEP 1: Check for "Unlocked" Cookie (From Stealth Login)
             const unlockCookie = req.cookies.get('vault_access_token');
             if (!unlockCookie) {
-                // If user hasn't logged in via Stealth Home, return Fake 404
-                return new NextResponse(null, { status: 404 });
+                // If user hasn't logged in via Stealth Home, return Fake 404 UI
+                // We use rewrite so the URL stays the same but the content is the 404 page
+                const url = req.nextUrl.clone();
+                url.pathname = '/404';
+                return NextResponse.rewrite(url);
             }
 
             // STEP 2: Basic Auth (Double Lock)
