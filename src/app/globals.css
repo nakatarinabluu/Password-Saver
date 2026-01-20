@@ -24,6 +24,9 @@
   /* Surface Whites */
   --color-text-primary: #1A1C1E;
   /* Main Text */
+
+  /* Custom Android Shadows */
+  --shadow-soft-blue: 0 10px 15px -3px rgba(45, 140, 255, 0.15), 0 4px 6px -2px rgba(45, 140, 255, 0.05);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -106,39 +106,49 @@ export default function Home() {
   // STEALTH UI: MIDNIGHT BLUE THEME
   if (isHidden) {
     return (
-      // Main Background: App Theme SoftCloud (Light)
-      <div className="min-h-screen flex flex-col items-center justify-center bg-soft-cloud text-midnight-blue font-sans cursor-default select-none p-4">
-
-        <div className="text-center max-w-lg">
-          {/* Animated Gear: White with low opacity */}
-          <div className="text-8xl mb-6 inline-block opacity-20 animate-spin" style={{ animationDuration: '3s' }}>
-            ⚙️
-          </div>
-
-          <h1 className="text-4xl font-light mb-4 text-midnight-blue tracking-tight">
-            System Maintenance
+      // Fake 404 Page (Stealth Mode)
+      // Mimics default Next.js 404 page style exactly
+      <div style={{
+        fontFamily: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"',
+        height: '100vh',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+        color: '#000'
+      }}>
+        {/* Stealth Hint: Ctrl+Shift+L to login */}
+        <div>
+          <h1 style={{
+            display: 'inline-block',
+            margin: 0,
+            marginRight: '20px',
+            padding: '10px 23px 10px 0',
+            fontSize: '24px',
+            fontWeight: 500,
+            verticalAlign: 'top',
+            borderRight: '1px solid rgba(0, 0, 0, .3)'
+          }}>
+            404
           </h1>
-
-          {/* Pulsing Bar: Lighter Blue */}
-          <div className="h-2 w-48 bg-blue-900 rounded-full mx-auto mb-8 overflow-hidden">
-            <div className="h-full bg-blue-400 w-1/2 rounded-full animate-pulse"></div>
-          </div>
-
-          <p className="text-sky-blue mb-12 leading-relaxed">
-            The ZeroKeep secure environment is updating.
-            <br />
-            Access is temporarily restricted.
-          </p>
-
-          <div className="flex justify-center items-center space-x-4">
-            {/* Dots: Light Blue */}
-            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="h-3 w-3 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          </div>
-
-          <div className="text-xs text-sky-blue/50 mt-20 font-mono uppercase tracking-widest">
-            &copy; 2026 ZeroKeep Inc.
+          <div style={{
+            display: 'inline-block',
+            textAlign: 'left',
+            lineHeight: '49px',
+            height: '49px',
+            verticalAlign: 'middle'
+          }}>
+            <h2 style={{
+              fontSize: '14px',
+              fontWeight: 400,
+              lineHeight: 'inherit',
+              margin: 0,
+              padding: 0
+            }}>
+              This page could not be found.
+            </h2>
           </div>
         </div>
       </div>
