@@ -117,7 +117,12 @@ export default function Home() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#000',
-        color: '#fff'
+        color: '#fff',
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        width: '100%',
+        zIndex: 9999,
       }}>
         {/* Stealth Hint: Ctrl+Shift+L to login */}
         <div>
