@@ -31,5 +31,5 @@ export interface IVaultRepository {
      * Reorders a batch of items.
      * @param items List of objects containing { id, order }.
      */
-    reorder(items: { id: string; order: number }[]): Promise<void>;
+    reorder(items: { id: string; order: number }[], ownerHash: string): Promise<void>;
 }

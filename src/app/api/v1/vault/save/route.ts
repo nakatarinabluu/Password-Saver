@@ -28,6 +28,15 @@ export async function POST(req: NextRequest) {
 
         const { id, owner_hash, title_hash, encrypted_blob, iv } = result.data;
 
+        // SECURITY: Enforce Header vs Body Consistency
+        const headerHash = req.headers.get('x-owner-hash');
+        if (!headerHash || headerHash !== owner_hash) {
+            return NextResponse.json({
+                error: 'Security Alert',
+                details: 'Owner Hash Mismatch between Header and Body'
+            }, { status: 403 });
+        }
+
         // Repository Pattern Implementation
         const repository = new VaultRepositoryImpl();
         await repository.save(id, owner_hash, title_hash, encrypted_blob, iv);

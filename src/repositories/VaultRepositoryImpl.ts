@@ -123,7 +123,7 @@ export class VaultRepositoryImpl implements IVaultRepository {
         await Promise.all([deleteFromNeon, deleteFromRedis]);
     }
 
-    async reorder(items: { id: string; order: number }[]): Promise<void> {
+    async reorder(items: { id: string; order: number }[], ownerHash: string): Promise<void> {
         // Efficient Batch Update using a Single Query with CASE or unnest
         // Since we are using neondatabase/serverless, standard Postgres features work.
         // Using a transaction is safest.
@@ -131,14 +131,15 @@ export class VaultRepositoryImpl implements IVaultRepository {
         if (items.length === 0) return;
 
         // Construct a giant CASE statement or use individual updates in Promise.all?
-        // Promise.all is easier to read and likely fine for < 100 items.
-        // For "Military Grade" let's try to be atomic, but individual updates are acceptable for MVP.
-
-        // Let's use individual updates for simplicity and minimal risk of SQL injection errors manually constructing query strings.
-        // db.query already parameterizes.
+        // Promise.all is simpler.
+        // ENFORCED SECURITY: We MUST include 'owner_hash' in the WHERE clause to prevent 
+        // unauthorized reordering of other people's secrets even if they guessed the UUID.
 
         const updates = items.map(item =>
-            db.query('UPDATE vault_shards_a SET order_index = $1 WHERE id = $2', [item.order, item.id])
+            db.query(
+                'UPDATE vault_shards_a SET order_index = $1 WHERE id = $2 AND owner_hash = $3',
+                [item.order, item.id, ownerHash]
+            )
         );
 
         await Promise.all(updates);
