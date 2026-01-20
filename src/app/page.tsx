@@ -171,26 +171,54 @@ export default function Home() {
     );
   }
 
-  // REAL LOGIN UI (Revealed)
+  // REAL LOGIN UI (Revealed - Dark Mode / Next.js Style)
   return (
-    <div className="min-h-screen bg-soft-cloud text-gray-800 font-sans flex flex-col items-center justify-center p-4">
-      <div className="bg-pure-white p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-200 animate-in fade-in zoom-in duration-300">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-midnight-blue">System Monitor</h1>
-          <button onClick={() => setIsHidden(true)} className="text-gray-400 hover:text-midnight-blue">✕</button>
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#000',
+      color: '#fff',
+      fontFamily: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      <div style={{
+        backgroundColor: '#000',
+        padding: '2rem',
+        borderRadius: '8px',
+        border: '1px solid #333',
+        width: '100%',
+        maxWidth: '380px',
+        boxShadow: '0 0 20px rgba(0,0,0,0.5)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#fff' }}>Authenticate</h1>
+          <button onClick={() => setIsHidden(true)} style={{ color: '#666', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6" autoComplete="off">
+        <form onSubmit={handleLogin} autoComplete="off">
           <input type="hidden" value="check" />
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-midnight-blue">Admin Password</label>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: '#888' }}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-gray-50 border border-gray-300 rounded text-gray-900 focus:border-sky-blue focus:ring-1 focus:ring-sky-blue outline-none transition"
-              placeholder="Enter Password"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#111',
+                border: '1px solid #333',
+                borderRadius: '4px',
+                color: '#fff',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                fontFamily: 'monospace'
+              }}
+              placeholder="••••••••"
               required
               autoComplete="new-password"
               name="admin-pwd-no-save"
@@ -198,13 +226,24 @@ export default function Home() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2 text-midnight-blue">2FA Code</label>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem', color: '#888' }}>2FA Code</label>
             <input
               type="text"
               value={totp}
               onChange={(e) => setTotp(e.target.value)}
-              className="w-full p-3 bg-gray-50 border border-gray-300 rounded text-gray-900 focus:border-sky-blue focus:ring-1 focus:ring-sky-blue outline-none transition font-mono tracking-widest text-center"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#111',
+                border: '1px solid #333',
+                borderRadius: '4px',
+                color: '#fff',
+                outline: 'none',
+                fontFamily: 'monospace',
+                textAlign: 'center',
+                letterSpacing: '0.2em'
+              }}
               placeholder="000 000"
               maxLength={6}
               required
@@ -215,14 +254,25 @@ export default function Home() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-midnight-blue hover:bg-sky-blue text-white font-bold py-3 px-4 rounded transition-colors shadow-lg"
+            style={{
+              width: '100%',
+              backgroundColor: '#fff',
+              color: '#000',
+              fontWeight: 600,
+              padding: '0.75rem',
+              borderRadius: '4px',
+              border: 'none',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1,
+              transition: 'opacity 0.2s'
+            }}
           >
-            {isLoading ? "Verifying..." : "Authenticate"}
+            {isLoading ? "Verifying..." : "Enter"}
           </button>
         </form>
 
         {message && (
-          <p className="mt-4 text-center text-red-300 text-sm">{message}</p>
+          <p style={{ marginTop: '1rem', textAlign: 'center', color: '#e00', fontSize: '0.875rem' }}>{message}</p>
         )}
       </div>
     </div>
