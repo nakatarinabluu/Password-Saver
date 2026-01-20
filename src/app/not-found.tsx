@@ -107,69 +107,62 @@ export default function NotFound() {
         return (
             // Fake 404 Page (Stealth Mode)
             // Mimics default Next.js 404 page style exactly
-            <>
-                <style dangerouslySetInnerHTML={{
-                    __html: `
-                    #stealth-404-root {
-                        font-family: system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji" !important;
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        right: 0 !important;
-                        bottom: 0 !important;
-                        background-color: #000 !important;
-                        color: #fff !important;
-                        z-index: 2147483647 !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        overflow: hidden !important;
-                        width: 100vw !important;
-                        height: 100vh !important;
-                    }
-                    #stealth-404-content {
-                        display: flex !important;
-                        flex-direction: row !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        white-space: nowrap !important;
-                        flex-wrap: nowrap !important;
-                    }
-                `}} />
-                <div id="stealth-404-root">
-                    {/* Stealth Hint: Ctrl+Shift+L to login */}
-                    <div id="stealth-404-content">
-                        <h1 style={{
-                            margin: 0,
-                            padding: '0 23px 0 0',
-                            fontSize: '24px',
-                            fontWeight: 500,
-                            borderRight: '1px solid rgba(255, 255, 255, .3)',
-                            lineHeight: '49px'
-                        }}>
-                            404
-                        </h1>
-                        <div style={{
-                            paddingLeft: '23px',
+            <div style={{
+                fontFamily: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"',
+                height: '100vh',
+                width: '100vw',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                backgroundColor: '#000',
+                color: '#fff',
+                zIndex: 2147483647,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: 0,
+                padding: 0,
+                overflow: 'hidden'
+            }}>
+                {/* Stealth Hint: Ctrl+Shift+L to login */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexWrap: 'nowrap'
+                }}>
+                    <h1 style={{
+                        display: 'inline-block',
+                        margin: 0,
+                        padding: '10px 23px 10px 0',
+                        fontSize: '24px',
+                        fontWeight: 500,
+                        borderRight: '1px solid rgba(255, 255, 255, .3)',
+                        verticalAlign: 'top'
+                    }}>
+                        404
+                    </h1>
+                    <div style={{
+                        display: 'inline-block',
+                        textAlign: 'left',
+                        lineHeight: '49px',
+                        height: '49px',
+                        verticalAlign: 'middle',
+                        paddingLeft: '20px'
+                    }}>
+                        <h2 style={{
+                            fontSize: '14px',
+                            fontWeight: 400,
                             lineHeight: '49px',
-                            height: '49px',
-                            display: 'flex',
-                            alignItems: 'center'
+                            margin: 0,
+                            padding: 0
                         }}>
-                            <h2 style={{
-                                fontSize: '14px',
-                                fontWeight: 400,
-                                margin: 0,
-                                padding: 0
-                            }}>
-                                This page could not be found.
-                            </h2>
-                        </div>
+                            This page could not be found.
+                        </h2>
                     </div>
                 </div>
-            </>
+            </div>
         );
     }
 
