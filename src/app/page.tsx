@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 
 export default function Home() {
+  console.log("--------------------------------------------------");
+  console.log("!!! DEBUG: PAGE.TSX IS RENDERING !!!");
+  console.log("--------------------------------------------------");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
@@ -108,61 +111,69 @@ export default function Home() {
     return (
       // Fake 404 Page (Stealth Mode)
       // Mimics default Next.js 404 page style exactly
-      <div style={{
-        fontFamily: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#000',
-        color: '#fff',
-        zIndex: 2147483647,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: 0,
-        padding: 0,
-        overflow: 'hidden'
-      }}>
-        {/* Stealth Hint: Ctrl+Shift+L to login */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          whiteSpace: 'nowrap', // FORCE SINGLE LINE
-          flexWrap: 'nowrap',
-          minWidth: 'max-content'
-        }}>
-          <h1 style={{
-            margin: 0,
-            padding: '0 23px 0 0',
-            fontSize: '24px',
-            fontWeight: 500,
-            borderRight: '1px solid rgba(255, 255, 255, .3)',
-            lineHeight: '49px'
-          }}>
-            404
-          </h1>
-          <div style={{
-            paddingLeft: '23px',
-            lineHeight: '49px',
-            height: '49px',
-            display: 'flex',
-            alignItems: 'center'
-          }}>
-            <h2 style={{
-              fontSize: '14px',
-              fontWeight: 400,
+      <>
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          #stealth-404-root {
+            font-family: system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji" !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background-color: #000 !important;
+            color: #fff !important;
+            z-index: 2147483647 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            width: 100vw !important;
+            height: 100vh !important;
+          }
+          #stealth-404-content {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            flex-wrap: nowrap !important;
+          }
+        `}} />
+        <div id="stealth-404-root">
+          {/* Stealth Hint: Ctrl+Shift+L to login */}
+          <div id="stealth-404-content">
+            <h1 style={{
               margin: 0,
-              padding: 0
+              padding: '0 23px 0 0',
+              fontSize: '24px',
+              fontWeight: 500,
+              borderRight: '1px solid rgba(255, 255, 255, .3)',
+              lineHeight: '49px'
             }}>
-              This page could not be found.
-            </h2>
+              404
+            </h1>
+            <div style={{
+              paddingLeft: '23px',
+              lineHeight: '49px',
+              height: '49px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <h2 style={{
+                fontSize: '14px',
+                fontWeight: 400,
+                margin: 0,
+                padding: 0
+              }}>
+                This page could not be found.
+              </h2>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
