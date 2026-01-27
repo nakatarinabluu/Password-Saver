@@ -5,6 +5,17 @@ CREATE TABLE IF NOT EXISTS vault_shards_a (
   content_a TEXT NOT NULL,
   iv TEXT NOT NULL,
   order_index INT DEFAULT 0,
+  status TEXT DEFAULT 'ACTIVE',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: vault_shards_b
+CREATE TABLE IF NOT EXISTS vault_shards_b (
+  id UUID PRIMARY KEY,
+  owner_hash TEXT NOT NULL,
+  content_encrypted TEXT NOT NULL,
+  iv TEXT NOT NULL,
+  status TEXT DEFAULT 'ACTIVE',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

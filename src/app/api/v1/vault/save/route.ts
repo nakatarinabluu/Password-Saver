@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { VaultRepositoryImpl } from '@/repositories/VaultRepositoryImpl';
 
-export const runtime = 'edge';
+
 
 // Strict Schema Validation
+// FOOTNOTE [Pillar 10: Zero Trust]
+// We validate every field of the incoming request using Zod.
+// We NEVER trust the client side validation.
 const SaveSchema = z.object({
     id: z.string().uuid(),
     owner_hash: z.string().min(32),
@@ -28,6 +31,9 @@ export async function POST(req: NextRequest) {
         const { id, owner_hash, encrypted_blob, iv } = result.data;
 
         // SECURITY: Enforce Header vs Body Consistency
+        // FOOTNOTE [Pillar 10: Zero Trust]
+        // We verify that the authenticated user (Header) matches the data owner (Body).
+        // preventing IDOR attacks.
         const headerHash = req.headers.get('x-owner-hash');
         if (!headerHash || headerHash !== owner_hash) {
             return NextResponse.json({
@@ -37,6 +43,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Repository Pattern Implementation
+        // FOOTNOTE [Pillar 1: Clean Architecture]
+        // The API route acts as the 'Controller/Presentation Layer'.
+        // It delegates business logic and data access to the 'repository',
+        // keeping this file clean and focused on HTTP handling.
         const repository = new VaultRepositoryImpl();
         await repository.save(id, owner_hash, encrypted_blob, iv);
 

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, redis } from '@/lib/db';
 
 export const runtime = 'edge';
 

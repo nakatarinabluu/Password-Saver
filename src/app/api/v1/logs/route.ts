@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { LoggerService } from '@/services/LoggerService';
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { timestamp, thread, exception, stacktrace, device } = body;
+        const { timestamp, thread, exception, stacktrace, device, os_version, app_version } = body;
 
-        // Save to Database (Enterprise Persistence)
-        await db.query(
-            'INSERT INTO crash_logs (timestamp, device, thread, exception, stacktrace) VALUES ($1, $2, $3, $4, $5)',
-            [timestamp, device, thread, exception, stacktrace]
-        );
+        // Capture IP from Headers
+        const forwarded = request.headers.get("x-forwarded-for");
+        const ip = forwarded ? forwarded.split(",")[0] : "127.0.0.1";
 
-        console.log(`✅ Crash Logged: ${exception} from ${device}`);
+        // Save to MongoDB via LoggerService (Pillar 2/10 Fix)
+        LoggerService.error(`CRASH: ${exception}`, {
+            device,
+            os_version,
+            app_version, // Captured Version
+            thread,
+            ip, // Added IP to metadata
+            stacktrace, // Already sanitized by Android Client
+            originalTimestamp: timestamp
+        });
+
+        console.log(`✅ Crash Logged to Mongo: ${exception} from ${device}`);
 
         return NextResponse.json({ success: true, message: "Crash logged successfully" });
     } catch (error) {

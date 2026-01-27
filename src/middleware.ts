@@ -44,14 +44,12 @@ async function recordFailure(ip: string) {
 
 export async function middleware(req: NextRequest) {
     try {
-        // DEBUG CLIENT SUPPORT (CORS & BYPASS)
-        if (req.headers.get('user-agent') === 'ZeroKeep-Debug-Web') {
-            const response = NextResponse.next();
-            response.headers.set('Access-Control-Allow-Origin', '*'); // Allow local file opening
-            response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-            response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-device-id, x-timestamp, x-signature, x-owner-hash, x-wipe-token, User-Agent');
-            return response;
-        }
+        // FOOTNOTE [Pillar 9: Deep Observability]
+        // Distributed Tracing: Assign a unique Trace ID to every request.
+        // This follows the request through Middleware -> API -> DB Logs.
+        const traceId = crypto.randomUUID();
+        req.headers.set('x-trace-id', traceId);
+
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ip = (req as any).ip || req.headers.get('x-forwarded-for') || '127.0.0.1';
@@ -153,7 +151,7 @@ export async function middleware(req: NextRequest) {
 
             // STEP 3: DANGER ZONE (Gateway 2 - Destruction PIN)
             // If accessing Danger Zone, enforce 2nd Verification (Cookie Check)
-            if (path.startsWith('/vault-ops/danger') && !path.startsWith('/vault-ops/danger/login')) {
+            if ((path.startsWith('/vault-ops/danger') || path.startsWith('/api/vault-ops/wipe')) && !path.startsWith('/vault-ops/danger/login')) {
                 const dangerToken = req.cookies.get('danger_zone_token');
                 if (!dangerToken) {
                     // Redirect to the red login screen
@@ -189,6 +187,26 @@ export async function middleware(req: NextRequest) {
 
         if (!isDev) {
             if (country !== 'ID') {
+                // Geo-Block Log (Sampled 10% to prevent flooding)
+                if (Math.random() < 0.1) {
+                    try {
+                        fetch(req.nextUrl.origin + '/api/sys-monitor/log-edge', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                level: 'WARN',
+                                message: 'Blocked: User from ' + (country || 'Unknown'),
+                                metadata: {
+                                    reason: 'Geo-Fencing Block',
+                                    action: 'BLOCKED_GEO',
+                                    ip: ip, // Valid here as we extracted it earlier
+                                    country: country
+                                }
+                            })
+                        }).catch(() => { }); // Fire and forget
+                    } catch (e) { }
+                }
+
                 // Silent Fail / Camouflage
                 return new NextResponse(null, {
                     status: 404,
@@ -196,6 +214,25 @@ export async function middleware(req: NextRequest) {
                 });
             }
             if (via || proxyConnection) {
+                // VPN Log (Sampled 10%)
+                if (Math.random() < 0.1) {
+                    try {
+                        fetch(req.nextUrl.origin + '/api/sys-monitor/log-edge', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                level: 'WARN',
+                                message: 'Blocked: VPN/Proxy Usage',
+                                metadata: {
+                                    reason: 'VPN Not Allowed',
+                                    action: 'BLOCKED_VPN',
+                                    ip: ip
+                                }
+                            })
+                        }).catch(() => { });
+                    } catch (e) { }
+                }
+
                 // VPN Detected
                 return new NextResponse(null, {
                     status: 403,
@@ -208,8 +245,26 @@ export async function middleware(req: NextRequest) {
         // 3. User-Agent Masking
         const userAgent = req.headers.get('user-agent') || '';
         if (userAgent !== 'ZeroKeep-Android/1.0') {
-            // FIX: Do not record failure for UA mismatch. 
-            // Attackers can randomize IPs and UAs to flood Redis.
+            // UA Mismatch Log (Sampled 1%) - Very High Volume Potential
+            if (Math.random() < 0.01) {
+                try {
+                    fetch(req.nextUrl.origin + '/api/sys-monitor/log-edge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            level: 'WARN',
+                            message: 'Blocked: Invalid User-Agent',
+                            metadata: {
+                                reason: 'User-Agent Mismatch',
+                                action: 'BLOCKED_UA',
+                                ip: ip,
+                                ua: userAgent
+                            }
+                        })
+                    }).catch(() => { });
+                } catch (e) { }
+            }
+
             return new NextResponse(null, {
                 status: 403,
                 statusText: 'Forbidden',
@@ -217,7 +272,30 @@ export async function middleware(req: NextRequest) {
             });
         }
 
-        // 4. X-API-KEY Verification
+        // 4. SESSION GUARD (Strict Redis Check)
+        // Requirement: "Checks for a session_id in Redis before allowing any calls"
+        // Exemptions: Auth Login/Register
+        if (!path.startsWith('/api/v1/auth') && path.startsWith('/api/v1/')) {
+            const sessionId = req.headers.get('x-session-id');
+            if (!sessionId) {
+                // Fail fast
+                return new NextResponse(null, { status: 401, statusText: 'Missing Session ID' });
+            }
+
+            // Check Redis
+            const sessionKey = `session:${sessionId}`;
+            const sessionActive = await redis.exists(sessionKey);
+
+            if (!sessionActive) {
+                return new NextResponse(null, { status: 401, statusText: 'Invalid or Expired Session' });
+            }
+
+            // Refresh TTL (15 Minutes)
+            // Requirement: "Sessions must have a short TTL (e.g., 15 minutes)"
+            await redis.expire(sessionKey, 900);
+        }
+
+        // 5. X-API-KEY Verification
         const apiKey = req.headers.get('x-api-key') || '';
         const validApiKey = process.env.APP_API_KEY || '';
         if (!validApiKey) return new NextResponse(null, { status: 500 });
@@ -326,7 +404,7 @@ export async function middleware(req: NextRequest) {
     } catch (error) {
         // No-Trace Logging: Do not log error details if they contain sensitive info
         // console.error('Middleware error:', error); 
-        return new NextResponse(null, {
+        return new NextResponse(JSON.stringify({ error: 'Internal Middleware Error', traceId: req.headers.get('x-trace-id') }), {
             status: 500,
             headers: { 'Server': 'Apache/2.2.22 (Unix) PHP/5.4.3' }
         });

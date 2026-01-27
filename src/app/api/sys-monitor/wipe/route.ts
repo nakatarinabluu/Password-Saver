@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { logAuditAction } from "@/lib/audit";
 import { nukeSystem } from "@/lib/system";
 
-export const runtime = 'edge';
+
 
 export async function POST(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for") || "unknown";

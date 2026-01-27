@@ -40,7 +40,6 @@ This is the server-side component of the **ZeroKeep** ecosystem. It is a "Ghost 
 | :--- | :--- |
 | `APP_API_KEY` | Shared secret for initial handshake. |
 | `HMAC_SECRET` | Secret key for request signing. |
-| `X_WIPE_TOKEN` | Token for the `/gate/wipe` kill-switch. |
 | `PEPPER_NEON` | 32-byte Hex Key for Shard A encryption. |
 | `PEPPER_REDIS` | 32-byte Hex Key for Shard B encryption. |
 | `NEON_DATABASE_URL` | PostgreSQL Connection String. |

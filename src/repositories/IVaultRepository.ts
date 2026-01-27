@@ -3,6 +3,7 @@ export interface VaultRecord {
     owner_hash: string;
     encrypted_blob: string; // The FULL re-assembled blob
     iv: string;
+    order_index?: number;
 }
 
 export interface IVaultRepository {

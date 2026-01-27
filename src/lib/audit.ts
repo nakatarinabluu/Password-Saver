@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { LoggerService } from '@/services/LoggerService';
 
 export type AuditAction =
     | 'LOGIN_ATTEMPT'
@@ -12,7 +12,7 @@ export type AuditAction =
 export type AuditStatus = 'SUCCESS' | 'FAILURE' | 'WARNING' | 'INFO';
 
 /**
- * Logs a security event to the immutable audit_logs table.
+ * Logs a security event to MongoDB (Immutable Audit Trail).
  */
 export async function logAuditAction(
     action: AuditAction,
@@ -21,16 +21,16 @@ export async function logAuditAction(
     metadata?: Record<string, any>
 ) {
     try {
-        const metadataStr = metadata ? JSON.stringify(metadata) : null;
-
-        await db.query(
-            'INSERT INTO audit_logs (action, status, actor_ip, metadata) VALUES ($1, $2, $3, $4)',
-            [action, status, ip, metadataStr]
-        );
+        // Use the centralized LoggerService (MongoDB)
+        LoggerService.security(action, {
+            status,
+            ip,
+            ...metadata
+        });
 
         console.log(`📝 AUDIT: [${action}] ${status} - ${ip}`);
     } catch (error) {
         // Fallback: If DB fails, we MUST log to stdout for recovery
-        console.error('🚨 CRITICAL: FAILED TO WRITE AUDIT LOG TO DB', error);
+        console.error('🚨 CRITICAL: FAILED TO WRITE AUDIT LOG', error);
     }
 }

@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, redis } from '@/lib/db';
+import { redis } from '@/lib/redis';
 
 export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
-    const status = {
-        neon: 'UNKNOWN',
+    const status: any = {
         redis: 'UNKNOWN',
         timestamp: new Date().toISOString()
     };
 
     try {
-        // Check Neon (Postgres)
-        const startNeon = performance.now();
-        await db.query('SELECT 1');
-        const endNeon = performance.now();
-        status.neon = `OK (${(endNeon - startNeon).toFixed(2)}ms)`;
-
         // Check Redis
         const startRedis = performance.now();
         await redis.ping();

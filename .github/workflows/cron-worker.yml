@@ -1,0 +1,16 @@
+name: ZeroKeep Sync Worker
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync_vault:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Sync Worker
+        run: |
+          curl -X GET "${{ secrets.APP_URL }}/api/worker/sync" \
+          -H "Authorization: Bearer ${{ secrets.WORKER_SECRET }}" \
+          --fail

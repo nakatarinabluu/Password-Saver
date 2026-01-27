@@ -74,7 +74,8 @@ export default function NotFound() {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    flexWrap: 'nowrap'
+                    flexWrap: 'wrap', // ALLOW WRAP
+                    maxWidth: '90%'
                 }}>
                     <h1 style={{
                         display: 'inline-block',
@@ -83,7 +84,8 @@ export default function NotFound() {
                         fontSize: '24px',
                         fontWeight: 500,
                         borderRight: '1px solid rgba(255, 255, 255, .3)',
-                        verticalAlign: 'top'
+                        verticalAlign: 'top',
+                        marginRight: '0px'
                     }}>
                         404
                     </h1>
